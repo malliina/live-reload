@@ -2,6 +2,9 @@
 
 Hot reloading of Play Framework web apps.
 
+Minimizes the time you have to wait for the app to reload and refresh after a code change, providing a smoother
+developer experience.
+
 ## Usage
 
 1. Enable `PlayHotReloadPlugin` instead of `PlayScala` in build.sbt:
