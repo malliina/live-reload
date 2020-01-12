@@ -1,0 +1,2 @@
+GET         /                    controllers.Home.index
+GET         /assets/*file        controllers.Home.versioned(path = "/public", file: Asset)
