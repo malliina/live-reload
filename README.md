@@ -1,3 +1,5 @@
+[![Build Status](https://github.com/malliina/play-hot-reload/workflows/Test/badge.svg)](https://github.com/malliina/play-hot-reload/actions)
+
 # play-hot
 
 Hot reloading of Play Framework web apps.
