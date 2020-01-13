@@ -1,5 +1,4 @@
-val plugin = project
-  .in(file("."))
+val plugin = Project("play-hot-reload", file("."))
   .enablePlugins(BintrayReleasePlugin)
   .settings(
     sbtPlugin := true,
