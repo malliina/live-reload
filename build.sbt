@@ -2,7 +2,6 @@ val plugin = Project("play-hot-reload", file("."))
   .enablePlugins(BintrayReleasePlugin)
   .settings(
     sbtPlugin := true,
-    version := "0.0.1",
     scalaVersion := "2.12.10",
     organization := "com.malliina",
     scalacOptions := Seq("-unchecked", "-deprecation"),
