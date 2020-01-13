@@ -1,5 +1,6 @@
 val plugin = project
   .in(file("."))
+  .enablePlugins(BintrayReleasePlugin)
   .settings(
     sbtPlugin := true,
     version := "0.0.1",
