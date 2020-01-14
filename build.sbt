@@ -1,3 +1,5 @@
+ThisBuild / pluginCrossBuild / sbtVersion := "1.2.8"
+
 val plugin = Project("play-hot-reload", file("."))
   .enablePlugins(BintrayReleasePlugin)
   .settings(
