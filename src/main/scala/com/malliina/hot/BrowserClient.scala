@@ -6,12 +6,14 @@ import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.ws.{Message, TextMessage}
+import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
 import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{BroadcastHub, Flow, Keep, MergeHub, Sink, Source}
-import com.typesafe.config.ConfigFactory
-import sbt.util.Logger
 import com.github.plokhotnyuk.jsoniter_scala.core.writeToString
+import com.typesafe.config.ConfigFactory
+import sbt.io.IO
+import sbt.util.Logger
 
 import scala.concurrent.duration.DurationInt
 
@@ -24,14 +26,23 @@ object BrowserClient {
       config = ConfigFactory.load(cl),
       classLoader = cl
     )
-    apply(log, system)
+    apply(log, cl, system)
   }
-  def apply(log: Logger, as: ActorSystem): BrowserClient = new BrowserClient(log)(as)
+  def apply(log: Logger, cl: ClassLoader, as: ActorSystem): BrowserClient =
+    new BrowserClient(log, cl)(as)
 }
 
-class BrowserClient(log: Logger)(implicit as: ActorSystem) {
+class BrowserClient(log: Logger, cl: ClassLoader, val port: Int = 10101)(implicit as: ActorSystem) {
   implicit val mat = ActorMaterializer()
   implicit val ec = as.dispatcher
+  // Injects port to JavaScript template
+  val script = resourceToString("script.js").replaceFirst("@PORT@", s"$port")
+
+  private def resourceToString(path: String) = {
+    val src = scala.io.Source.fromResource(path, cl)
+    try src.getLines().mkString(IO.Newline)
+    finally src.close()
+  }
 
   val server = new AtomicReference[Option[Http.ServerBinding]](None)
 
@@ -60,6 +71,11 @@ class BrowserClient(log: Logger)(implicit as: ActorSystem) {
     path("socket.js") {
       getFromResource("socket.js")
     },
+    path("script.js") {
+      val contentType = MediaTypes.`application/javascript`.withCharset(HttpCharsets.`UTF-8`)
+      val entity = HttpEntity(contentType, script)
+      complete(HttpResponse(status = StatusCodes.OK, entity = entity))
+    },
     path("ws") {
       handleWebSocketMessages(socketFlow)
     }
@@ -78,9 +94,8 @@ class BrowserClient(log: Logger)(implicit as: ActorSystem) {
 
   def start(): Unit = {
     Http()
-      .bindAndHandle(websocketRoute, "localhost", 8080)
+      .bindAndHandle(websocketRoute, "localhost", port)
       .map { http =>
-        as.log.info("Server online.")
         log.info(
           s"Server online at http://${http.localAddress.getHostName}:${http.localAddress.getPort}/"
         )

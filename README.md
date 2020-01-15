@@ -15,7 +15,8 @@ developer experience.
           .in(file("."))
           .enablePlugins(PlayHotReloadPlugin)
 
-1. Load [socket.js](src/main/resources/socket.js) from the HTML of your web page.
+1. Inject the JavaScript URL found in value `com.malliina.hot.HotReload.script` to the HTML of your web page. By 
+default, this will be [script.js](src/main/resources/script.js) served from http://localhost:10101/script.js.
 
 1. When developing with `sbt ~run`, changes to source code will reload the web page after recompilation.
 

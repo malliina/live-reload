@@ -1,7 +1,11 @@
 package com.malliina.hot
 
+import java.nio.charset.StandardCharsets
+
 import sbt.Keys.{compile, extraLoggers, sLog}
 import sbt.{AutoPlugin, Compile, ScopedKey, settingKey, taskKey}
+import sbt.Keys.{sourceGenerators, sourceManaged}
+import sbt._
 
 object HotReloadPlugin extends AutoPlugin {
   object autoImport {
@@ -54,6 +58,31 @@ object HotReloadPlugin extends AutoPlugin {
       (key: ScopedKey[_]) => {
         new BrowserConsoleAppender(key) +: currentFunction(key)
       }
-    }
+    },
+    sourceGenerators in Compile += Def.task {
+      val dest = (sourceManaged in Compile).value
+      makeSources(dest, reloader.value.port)
+    }.taskValue
   )
+
+  def makeSources(destBase: File, port: Int): Seq[File] = {
+    val packageName = "com.malliina.hot"
+    val host = s"http://localhost:$port"
+    val content =
+      s"""
+         |package $packageName
+         |
+         |object HotReload {
+         |  val host = "$host"
+         |  val script = "$host/script.js"
+         |  val socket = "$host/ws"
+         |}
+      """.stripMargin.trim + IO.Newline
+    val destFile = destDir(destBase, packageName) / s"HotReload.scala"
+    IO.write(destFile, content, StandardCharsets.UTF_8)
+    Seq(destFile)
+  }
+
+  def destDir(base: File, packageName: String): File =
+    packageName.split('.').foldLeft(base)((acc, part) => acc / part)
 }

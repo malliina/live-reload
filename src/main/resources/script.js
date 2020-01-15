@@ -1,4 +1,4 @@
-let hotSocket = new WebSocket("ws://localhost:10101/ws")
+let hotSocket = new WebSocket("ws://localhost:@PORT@/ws")
 hotSocket.onopen = function (event) {
     console.log("Hot reload enabled.")
 }
