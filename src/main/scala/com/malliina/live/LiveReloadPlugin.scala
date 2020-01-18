@@ -66,19 +66,19 @@ object HotReloadPlugin extends AutoPlugin {
   )
 
   def makeSources(destBase: File, port: Int): Seq[File] = {
-    val packageName = "com.malliina.hot"
+    val packageName = "com.malliina.live"
     val host = s"http://localhost:$port"
     val content =
       s"""
          |package $packageName
          |
-         |object HotReload {
+         |object LiveReload {
          |  val host = "$host"
          |  val script = "$host/script.js"
          |  val socket = "$host/ws"
          |}
       """.stripMargin.trim + IO.Newline
-    val destFile = destDir(destBase, packageName) / s"HotReload.scala"
+    val destFile = destDir(destBase, packageName) / s"LiveReload.scala"
     IO.write(destFile, content, StandardCharsets.UTF_8)
     Seq(destFile)
   }

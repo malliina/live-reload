@@ -1,4 +1,4 @@
-[![Build Status](https://github.com/malliina/play-hot-reload/workflows/Test/badge.svg)](https://github.com/malliina/play-hot-reload/actions)
+[![Build Status](https://github.com/malliina/play-live-reload/workflows/Test/badge.svg)](https://github.com/malliina/play-live-reload/actions)
 
 # play-live-reload
 

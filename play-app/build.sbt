@@ -1,6 +1,6 @@
 val app = project
   .in(file("."))
-  .enablePlugins(PlayHotReloadPlugin)
+  .enablePlugins(PlayLiveReloadPlugin)
   .settings(
     organization := "com.malliina",
     version := "0.0.1",
