@@ -1,5 +1,7 @@
 ThisBuild / pluginCrossBuild / sbtVersion := "1.2.8"
 
+Global / useGpg := true
+
 val plugin = Project("play-live-reload", file("."))
   .enablePlugins(BintrayReleasePlugin)
   .settings(
