@@ -25,7 +25,9 @@ jobs:
       - name: Prepare PGP
         env:
           PGP_SECRET: ${{ secrets.PgpSecret }}
-        run: echo "$PGP_SECRET" | base64 --decode | gpg --import --no-tty --batch --yes
+        run: |
+          gpg --version
+          echo $PGP_SECRET | base64 --decode | gpg --import --no-tty --batch --yes
       - name: Publish to Bintray
         env:
           BINTRAY_USER: malliina
