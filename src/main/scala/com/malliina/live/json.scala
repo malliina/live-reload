@@ -1,4 +1,4 @@
-package com.malliina.hot
+package com.malliina.live
 
 import com.github.plokhotnyuk.jsoniter_scala.macros._
 import com.github.plokhotnyuk.jsoniter_scala.core._

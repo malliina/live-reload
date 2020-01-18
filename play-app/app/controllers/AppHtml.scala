@@ -1,7 +1,7 @@
 package controllers
 
 import com.malliina.app.TagPage
-import com.malliina.hot.HotReload
+import com.malliina.live.HotReload
 import scalatags.Text.all._
 
 object AppHtml {

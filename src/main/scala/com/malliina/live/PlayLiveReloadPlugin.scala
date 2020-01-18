@@ -1,12 +1,12 @@
-package com.malliina.hot
+package com.malliina.live
 
-import com.malliina.hot.HotReloadPlugin.autoImport._
+import com.malliina.live.HotReloadPlugin.autoImport._
 import play.sbt.PlayImport.PlayKeys
 import play.sbt.PlayScala
 import sbt.{AutoPlugin, settingKey}
 import sbt.Keys._
 
-object PlayHotReloadPlugin extends AutoPlugin {
+object PlayLiveReloadPlugin extends AutoPlugin {
   override def requires = HotReloadPlugin && PlayScala
 
   object autoImport {

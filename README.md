@@ -1,22 +1,21 @@
 [![Build Status](https://github.com/malliina/play-hot-reload/workflows/Test/badge.svg)](https://github.com/malliina/play-hot-reload/actions)
 
-# play-hot
+# play-live-reload
 
-Hot reloading of Play Framework web apps.
+Live reloading of Play Framework web apps.
 
 Minimizes the time you have to wait for the app to reload and refresh after a code change, providing a smoother
 developer experience.
 
 ## Usage
 
-1. Enable `PlayHotReloadPlugin` instead of `PlayScala` in build.sbt:
+1. Enable `PlayLiveReloadPlugin` instead of `PlayScala` in build.sbt:
 
         val app = project
           .in(file("."))
-          .enablePlugins(PlayHotReloadPlugin)
+          .enablePlugins(PlayLiveReloadPlugin)
 
-1. Inject the JavaScript URL found in value `com.malliina.hot.HotReload.script` to the HTML of your web page. By 
-default, this will be [script.js](src/main/resources/script.js) served from http://localhost:10101/script.js.
+1. Inject the JavaScript URL found in value `com.malliina.live.LiveReload.script` to the HTML of your web page.
 
 1. When developing with `sbt ~run`, changes to source code will reload the web page after recompilation.
 
@@ -27,7 +26,7 @@ setting with key `openBrowserOnStart`:
 
 ## Example app
 
-Folder [play-app](play-app) contains an example Play app with hot reloading enabled.
+Folder [play-app](play-app) contains an example Play app with live reloading enabled.
 
 ## Prior art
 

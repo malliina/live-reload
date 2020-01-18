@@ -1,4 +1,4 @@
-package com.malliina.hot
+package com.malliina.live
 
 import java.util.concurrent.atomic.AtomicReference
 
@@ -22,7 +22,7 @@ object BrowserClient {
     // Adapted from workbench
     val cl = getClass.getClassLoader
     val system = ActorSystem(
-      "hot-ws",
+      "live-ws",
       config = ConfigFactory.load(cl),
       classLoader = cl
     )

@@ -1,18 +1,18 @@
-let hotSocket = new WebSocket("ws://localhost:@PORT@/ws")
-hotSocket.onopen = function (event) {
+let liveReload = new WebSocket("ws://localhost:@PORT@/ws")
+liveReload.onopen = function (event) {
     console.log("Hot reload enabled.")
 }
-hotSocket.onclose = function (event) {
+liveReload.onclose = function (event) {
     console.log("Closed.")
 }
-hotSocket.onmessage = function (event) {
+liveReload.onmessage = function (event) {
     let data = JSON.parse(event.data)
     let eventKey = data.event
     if (eventKey === "ping") {
         return
     }
     if (eventKey === "reload") {
-        hotSocket.close()
+        liveReload.close()
         location.reload()
     } else if (eventKey === "log") {
         let level = data.level

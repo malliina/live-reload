@@ -1,4 +1,4 @@
-package com.malliina.hot
+package com.malliina.live
 
 import java.nio.charset.StandardCharsets
 
