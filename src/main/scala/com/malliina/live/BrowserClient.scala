@@ -68,9 +68,6 @@ class BrowserClient(log: Logger, cl: ClassLoader, val port: Int = 10101)(implici
         getFromResource("index.html")
       }
     },
-    path("socket.js") {
-      getFromResource("socket.js")
-    },
     path("script.js") {
       val contentType = MediaTypes.`application/javascript`.withCharset(HttpCharsets.`UTF-8`)
       val entity = HttpEntity(contentType, script)
