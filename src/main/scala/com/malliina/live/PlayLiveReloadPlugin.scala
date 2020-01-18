@@ -1,13 +1,13 @@
 package com.malliina.live
 
-import com.malliina.live.HotReloadPlugin.autoImport._
+import com.malliina.live.LiveReloadPlugin.autoImport._
 import play.sbt.PlayImport.PlayKeys
 import play.sbt.PlayScala
 import sbt.{AutoPlugin, settingKey}
 import sbt.Keys._
 
 object PlayLiveReloadPlugin extends AutoPlugin {
-  override def requires = HotReloadPlugin && PlayScala
+  override def requires = LiveReloadPlugin && PlayScala
 
   object autoImport {
     val openBrowserOnStart = settingKey[Boolean]("Open browser on Play app start")

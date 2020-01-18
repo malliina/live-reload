@@ -13,6 +13,5 @@ val plugin = Project("play-live-reload", file("."))
       "com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-core" % "2.1.2" % Compile,
       "com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-macros" % "2.1.2" % Provided
     ),
-    addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.8.0"),
-    releaseProcess := fullReleaseProcess.value
+    addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.8.0")
   )

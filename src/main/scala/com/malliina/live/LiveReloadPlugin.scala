@@ -7,7 +7,7 @@ import sbt.{AutoPlugin, Compile, ScopedKey, settingKey, taskKey}
 import sbt.Keys.{sourceGenerators, sourceManaged}
 import sbt._
 
-object HotReloadPlugin extends AutoPlugin {
+object LiveReloadPlugin extends AutoPlugin {
   object autoImport {
     val reloader = settingKey[BrowserClient]("Interface to browsers")
     val refreshBrowsers = taskKey[Unit]("Refreshes browsers")
