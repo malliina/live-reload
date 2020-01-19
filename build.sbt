@@ -1,6 +1,6 @@
 ThisBuild / pluginCrossBuild / sbtVersion := "1.2.8"
 
-//Global / useGpg := true
+Global / useGpg := true
 
 Global / pgpPassphrase := sys.env.get("PGP_PASSPHRASE").map(_.toCharArray)
 
