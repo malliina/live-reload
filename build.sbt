@@ -1,10 +1,8 @@
-import sbtrelease.ReleaseStateTransformations.{checkSnapshotDependencies, commitNextVersion, commitReleaseVersion, inquireVersions, publishArtifacts, pushChanges, runTest, setNextVersion, setReleaseVersion, tagRelease}
-
 ThisBuild / pluginCrossBuild / sbtVersion := "1.2.8"
 
-//Global / useGpg := true
+Global / useGpg := true
 
-//Global / pgpPassphrase := sys.env.get("PGP_PASSPHRASE").map(_.toCharArray)
+Global / pgpPassphrase := sys.env.get("PGP_PASSPHRASE").map(_.toCharArray)
 
 val plugin = Project("play-live-reload", file("."))
   .enablePlugins(MavenCentralPlugin)
@@ -22,19 +20,5 @@ val plugin = Project("play-live-reload", file("."))
       "com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-macros" % "2.1.2" % Provided
     ),
     addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.8.0"),
-    fullReleaseProcess := Seq[ReleaseStep](
-      checkSnapshotDependencies,
-      inquireVersions,
-      runTest,
-      setReleaseVersion,
-      releaseStepTask(beforePublish),
-      commitReleaseVersion,
-      tagRelease,
-      publishArtifacts,
-      setNextVersion,
-      commitNextVersion,
-      releaseStepCommand("sonatypeReleaseAll"),
-      releaseStepTask(afterPublish)
-    ),
-    releaseProcess := fullReleaseProcess.value
+    releaseProcess := tagReleaseProcess.value
   )
