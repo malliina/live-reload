@@ -35,7 +35,7 @@ jobs:
           chmod 600 ~/.gnupg/*
           echo RELOADAGENT | gpg-connect-agent
           echo $PGP_SECRET | base64 --decode | gpg --import --no-tty --batch --yes
-      - name: Publish to Bintray
+      - name: Publish to Maven Central
         env:
           BINTRAY_USER: malliina
           BINTRAY_PASS: ${{ secrets.BintrayPass }}
