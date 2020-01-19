@@ -28,6 +28,15 @@ setting with key `openBrowserOnStart`:
 
 Folder [play-app](play-app) contains an example Play app with live reloading enabled.
 
+## Releasing a new version
+
+To release a new version to Bintray, run:
+
+    sbt release
+    
+This will push a new tag to version control, which triggers this [GitHub Action](.github/workflows/release.yml) that 
+releases a new version.
+
 ## Prior art
 
 Li Haoyi's [workbench](https://github.com/lihaoyi/workbench):

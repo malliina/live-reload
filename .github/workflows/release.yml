@@ -1,4 +1,4 @@
-name: Publish
+name: Release
 # Adapted from https://github.com/beautiful-scala/scalastyle/blob/master/.github/workflows/release.yml
 
 on:
