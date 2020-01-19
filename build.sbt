@@ -1,9 +1,5 @@
 ThisBuild / pluginCrossBuild / sbtVersion := "1.2.8"
 
-Global / useGpg := true
-
-Global / pgpPassphrase := sys.env.get("PGP_PASSPHRASE").map(_.toCharArray)
-
 val plugin = Project("play-live-reload", file("."))
   .enablePlugins(MavenCentralPlugin)
   .settings(
@@ -19,6 +15,5 @@ val plugin = Project("play-live-reload", file("."))
       "com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-core" % "2.1.2" % Compile,
       "com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-macros" % "2.1.2" % Provided
     ),
-    addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.8.0"),
-    releaseProcess := tagReleaseProcess.value
+    addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.8.0")
   )
