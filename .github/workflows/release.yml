@@ -37,7 +37,7 @@ jobs:
           echo $PGP_SECRET | base64 --decode | gpg --import --no-tty --batch --yes
       - name: Publish to Maven Central
         env:
-          BINTRAY_USER: malliina
-          BINTRAY_PASS: ${{ secrets.BintrayPass }}
+          SONATYPE_USERNAME: ${{ secrets.SonatypeUsername }}
+          SONATYPE_PASSWORD: ${{ secrets.SonatypePassword }}
           PGP_PASSPHRASE: ${{ secrets.PgpPassphrase }}
         run: sbt releaseArtifacts
