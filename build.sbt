@@ -1,4 +1,4 @@
-import sbtrelease.ReleaseStateTransformations.{checkSnapshotDependencies, commitNextVersion, commitReleaseVersion, inquireVersions, pushChanges, runTest, setNextVersion, setReleaseVersion, tagRelease}
+import sbtrelease.ReleaseStateTransformations.{checkSnapshotDependencies, commitNextVersion, commitReleaseVersion, inquireVersions, publishArtifacts, pushChanges, runTest, setNextVersion, setReleaseVersion, tagRelease}
 
 ThisBuild / pluginCrossBuild / sbtVersion := "1.2.8"
 
@@ -27,11 +27,14 @@ val plugin = Project("play-live-reload", file("."))
       inquireVersions,
       runTest,
       setReleaseVersion,
-      releaseStepTask(beforeCommitRelease),
+      releaseStepTask(beforePublish),
       commitReleaseVersion,
       tagRelease,
+      publishArtifacts,
       setNextVersion,
-      commitNextVersion
+      commitNextVersion,
+      releaseStepCommand("sonatypeReleaseAll"),
+      releaseStepTask(afterPublish)
     ),
     releaseProcess := fullReleaseProcess.value
   )
