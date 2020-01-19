@@ -1,5 +1,4 @@
 [![Build Status](https://github.com/malliina/play-live-reload/workflows/Test/badge.svg)](https://github.com/malliina/play-live-reload/actions)
-[![Bintray](https://img.shields.io/bintray/v/malliina/sbt-plugins/play-live-reload.svg?maxAge=60)](https://bintray.com/malliina/sbt-plugins/play-live-reload)
 
 # play-live-reload
 
