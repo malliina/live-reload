@@ -1,4 +1,5 @@
 name: Publish
+# Adapted from https://github.com/beautiful-scala/scalastyle/blob/master/.github/workflows/release.yml
 
 on:
   push:
@@ -27,7 +28,6 @@ jobs:
           PGP_SECRET: ${{ secrets.PgpSecret }}
         run: |
           gpg --version
-        # Adapted from https://github.com/beautiful-scala/scalastyle/blob/master/.github/workflows/release.yml
           mkdir ~/.gnupg && chmod 700 ~/.gnupg
           echo use-agent >> ~/.gnupg/gpg.conf
           echo pinentry-mode loopback >> ~/.gnupg/gpg.conf
