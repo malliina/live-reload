@@ -2,9 +2,9 @@ import sbtrelease.ReleaseStateTransformations.{checkSnapshotDependencies, commit
 
 ThisBuild / pluginCrossBuild / sbtVersion := "1.2.8"
 
-Global / useGpg := true
+//Global / useGpg := true
 
-Global / pgpPassphrase := sys.env.get("PGP_PASSPHRASE").map(_.toCharArray)
+//Global / pgpPassphrase := sys.env.get("PGP_PASSPHRASE").map(_.toCharArray)
 
 val plugin = Project("play-live-reload", file("."))
   .enablePlugins(MavenCentralPlugin)
