@@ -5,11 +5,13 @@ Global / useGpg := true
 Global / pgpPassphrase := sys.env.get("PGP_PASSPHRASE").map(_.toCharArray)
 
 val plugin = Project("play-live-reload", file("."))
-  .enablePlugins(BintrayReleasePlugin)
+  .enablePlugins(MavenCentralPlugin)
   .settings(
     sbtPlugin := true,
     scalaVersion := "2.12.10",
     organization := "com.malliina",
+    gitUserName := "malliina",
+    developerName := "Michael Skogberg",
     scalacOptions := Seq("-unchecked", "-deprecation"),
     libraryDependencies ++= Seq(
       "com.typesafe.akka" %% "akka-http" % "10.1.3",
