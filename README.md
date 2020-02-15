@@ -2,12 +2,13 @@
 
 # play-live-reload
 
-Live reloading of Play Framework web apps.
-
-Minimizes the time you have to wait for the app to reload and refresh after a code change, providing a smoother
-developer experience.
+Reloads the browser after a code change in your Play Framework web app.
 
 ## Usage
+
+1. Add to `project/plugins.sbt`:
+
+        addSbtPlugin("com.malliina" % "play-live-reload" % "0.0.27")
 
 1. Enable `PlayLiveReloadPlugin` instead of `PlayScala` in build.sbt:
 
@@ -30,12 +31,12 @@ Folder [play-app](play-app) contains an example Play app with live reloading ena
 
 ## Releasing a new version
 
-To release a new version to Bintray, run:
+To release a new version to Maven Central, run:
 
     sbt release
     
 This will push a new tag to version control, which triggers this [GitHub Action](.github/workflows/release.yml) that 
-releases a new version.
+pushes artifacts to Maven Central.
 
 ## Prior art
 
