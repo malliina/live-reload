@@ -10,12 +10,16 @@ import sbt._
 object LiveReloadPlugin extends AutoPlugin {
   object autoImport {
     val reloader = settingKey[BrowserClient]("Interface to browsers")
+    val liveReloadHost = settingKey[String]("Host for live reload, defaults to localhost")
+    val liveReloadPort = settingKey[Int]("HTTP port for live reload, defaults to 10101")
     val refreshBrowsers = taskKey[Unit]("Refreshes browsers")
   }
   import autoImport._
 
   override def projectSettings = Seq(
-    reloader := BrowserClient(sLog.value),
+    liveReloadHost := "localhost",
+    liveReloadPort := 10101,
+    reloader := BrowserClient(liveReloadHost.value, liveReloadPort.value, sLog.value),
     refreshBrowsers := reloader.value.reload(),
     refreshBrowsers := refreshBrowsers.triggeredBy(compile in Compile).value,
     extraLoggers := {

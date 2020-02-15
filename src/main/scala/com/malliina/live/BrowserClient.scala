@@ -18,7 +18,7 @@ import sbt.util.Logger
 import scala.concurrent.duration.DurationInt
 
 object BrowserClient {
-  def apply(log: Logger): BrowserClient = {
+  def apply(host: String, port: Int, log: Logger): BrowserClient = {
     // Adapted from workbench
     val cl = getClass.getClassLoader
     val system = ActorSystem(
@@ -26,13 +26,15 @@ object BrowserClient {
       config = ConfigFactory.load(cl),
       classLoader = cl
     )
-    apply(log, cl, system)
+    apply(host, port, log, cl, system)
   }
-  def apply(log: Logger, cl: ClassLoader, as: ActorSystem): BrowserClient =
-    new BrowserClient(log, cl)(as)
+  def apply(host: String, port: Int, log: Logger, cl: ClassLoader, as: ActorSystem): BrowserClient =
+    new BrowserClient(host, port, log, cl)(as)
 }
 
-class BrowserClient(log: Logger, cl: ClassLoader, val port: Int = 10101)(implicit as: ActorSystem) {
+class BrowserClient(host: String, val port: Int, log: Logger, cl: ClassLoader)(
+    implicit as: ActorSystem
+) {
   implicit val mat = ActorMaterializer()
   implicit val ec = as.dispatcher
   // Injects port to JavaScript template
@@ -91,10 +93,10 @@ class BrowserClient(log: Logger, cl: ClassLoader, val port: Int = 10101)(implici
 
   def start(): Unit = {
     Http()
-      .bindAndHandle(websocketRoute, "localhost", port)
+      .bindAndHandle(websocketRoute, host, port)
       .map { http =>
         log.info(
-          s"Server online at http://${http.localAddress.getHostName}:${http.localAddress.getPort}/"
+          s"Server online at http://$host:$port/"
         )
         server.set(Option(http))
       }
