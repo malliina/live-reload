@@ -2,13 +2,12 @@ package tests
 
 import akka.actor.ActorSystem
 import akka.stream.scaladsl.{BroadcastHub, Keep, MergeHub, Source}
-import org.scalatest.FunSuite
 
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{Await, Future}
 
-class StreamTests extends FunSuite {
-  ignore("combo") {
+class StreamTests extends munit.FunSuite {
+  test("combo".ignore) {
     implicit val as = ActorSystem("test")
     val (sink, source) =
       MergeHub
