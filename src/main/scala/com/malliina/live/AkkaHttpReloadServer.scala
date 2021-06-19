@@ -17,8 +17,8 @@ import sbt.util.Logger
 
 import scala.concurrent.duration.DurationInt
 
-object BrowserClient {
-  def apply(host: String, port: Int, log: Logger): BrowserClient = {
+object AkkaHttpReloadServer {
+  def apply(host: String, port: Int, log: Logger): AkkaHttpReloadServer = {
     // Adapted from workbench
     val cl = getClass.getClassLoader
     val system = ActorSystem(
@@ -28,13 +28,19 @@ object BrowserClient {
     )
     apply(host, port, log, cl, system)
   }
-  def apply(host: String, port: Int, log: Logger, cl: ClassLoader, as: ActorSystem): BrowserClient =
-    new BrowserClient(host, port, log, cl)(as)
+  def apply(
+      host: String,
+      port: Int,
+      log: Logger,
+      cl: ClassLoader,
+      as: ActorSystem
+  ): AkkaHttpReloadServer =
+    new AkkaHttpReloadServer(host, port, log, cl)(as)
 }
 
-class BrowserClient(host: String, val port: Int, log: Logger, cl: ClassLoader)(
+class AkkaHttpReloadServer(val host: String, val port: Int, log: Logger, cl: ClassLoader)(
     implicit as: ActorSystem
-) {
+) extends Reloadable {
   implicit val mat = ActorMaterializer()
   implicit val ec = as.dispatcher
   // Injects port to JavaScript template
@@ -80,31 +86,25 @@ class BrowserClient(host: String, val port: Int, log: Logger, cl: ClassLoader)(
     }
   )
 
-  def reload(): Unit = {
-    Source.single(writeToString(SimpleEvent.reload)).to(eventSink).run()
-  }
-
-  def emitLog(message: MessageEvent) = {
+  def emit(message: BrowserEvent): Unit =
     Source
-      .single(writeToString(message))
+      .single(message.asJson)
       .to(eventSink)
       .run()
-  }
 
-  def start(): Unit = {
-    Http()
-      .bindAndHandle(websocketRoute, host, port)
-      .map { http =>
-        log.info(
-          s"Server online at http://$host:$port/"
-        )
-        server.set(Option(http))
-      }
-      .recover {
-        case _: Exception =>
-          log.err("Failed to start HTTP server.")
-      }
-  }
+  def start(): Unit = Http()
+    .bindAndHandle(websocketRoute, host, port)
+    .map { http =>
+      log.info(s"Server online at http://$host:$port/")
+      server.set(Option(http))
+    }
+    .recover {
+      case _: Exception =>
+        log.err("Failed to start HTTP server.")
+    }
+
+  override def scriptUrl: String = s"http://$host:$port/script.js"
+  override def wsUrl: String = s"ws://$host:$port/ws"
 
   def close(): Unit = {
     log.info("Closing server...")

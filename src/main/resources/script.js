@@ -1,6 +1,6 @@
-let liveReload = new WebSocket("ws://localhost:@PORT@/ws")
+let liveReload = new WebSocket("@WS_URL@")
 liveReload.onopen = function (event) {
-    console.log("Hot reload enabled.")
+    console.log("Live reload enabled.")
 }
 liveReload.onclose = function (event) {
     console.log("Closed.")

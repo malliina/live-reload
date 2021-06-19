@@ -8,9 +8,9 @@ Reloads the browser after a code change in your Play Framework web app.
 
 1. Add to `project/plugins.sbt`:
 
-        addSbtPlugin("com.malliina" % "play-live-reload" % "0.0.27")
+        addSbtPlugin("com.malliina" % "live-reload" % "0.0.27")
 
-1. Enable `PlayLiveReloadPlugin` instead of `PlayScala` in build.sbt:
+1. Enable `LiveReloadPlugin` instead of `PlayScala` in build.sbt:
 
         val app = project
           .in(file("."))
@@ -27,7 +27,7 @@ setting with key `openBrowserOnStart`:
 
 ## Example app
 
-Folder [play-app](play-app) contains an example Play app with live reloading enabled.
+Folder [play-app](http4s-app) contains an example Play app with live reloading enabled.
 
 ## Releasing a new version
 

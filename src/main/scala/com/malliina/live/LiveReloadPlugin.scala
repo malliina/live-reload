@@ -1,27 +1,34 @@
 package com.malliina.live
 
 import java.nio.charset.StandardCharsets
-
-import sbt.Keys.{compile, extraLoggers, sLog}
-import sbt.{AutoPlugin, Compile, ScopedKey, settingKey, taskKey}
-import sbt.Keys.{sourceGenerators, sourceManaged}
+import sbt.Keys._
 import sbt._
 
 object LiveReloadPlugin extends AutoPlugin {
   object autoImport {
-    val reloader = settingKey[BrowserClient]("Interface to browsers")
+    val reloader = settingKey[Reloadable]("Interface to browsers")
     val liveReloadHost = settingKey[String]("Host for live reload, defaults to localhost")
     val liveReloadPort = settingKey[Int]("HTTP port for live reload, defaults to 10101")
     val refreshBrowsers = taskKey[Unit]("Refreshes browsers")
   }
   import autoImport._
 
-  override def projectSettings = Seq(
+  override def projectSettings: Seq[Setting[_]] = Seq(
     liveReloadHost := "localhost",
     liveReloadPort := 10101,
-    reloader := BrowserClient(liveReloadHost.value, liveReloadPort.value, sLog.value),
+    reloader := StaticServer.start(
+      io.Path.userHome.toPath.resolve(".live-reload"),
+      liveReloadHost.value,
+      liveReloadPort.value,
+      sLog.value
+    ),
+    onUnload in Global := (onUnload in Global).value andThen { state: State =>
+      sLog.value.info("onUnload")
+      reloader.value.close()
+      state
+    },
     refreshBrowsers := reloader.value.reload(),
-    refreshBrowsers := refreshBrowsers.triggeredBy(compile in Compile).value,
+    refreshBrowsers := refreshBrowsers.triggeredBy(Compile / compile).value,
     extraLoggers := {
       // Sends compilation log output to the browser
       // https://www.scala-sbt.org/1.x/docs/Howto-Logging.html#Add+a+custom+logger
@@ -54,7 +61,7 @@ object LiveReloadPlugin extends AutoPlugin {
               case unexpected: Message => forUnexpected(unexpected)
             }
           }
-          reloader.value.emitLog(message)
+          reloader.value.emit(message)
         }
       }
 
@@ -63,23 +70,23 @@ object LiveReloadPlugin extends AutoPlugin {
         new BrowserConsoleAppender(key) +: currentFunction(key)
       }
     },
-    sourceGenerators in Compile += Def.task {
-      val dest = (sourceManaged in Compile).value
-      makeSources(dest, reloader.value.port)
+    Compile / sourceGenerators += Def.task {
+      val dest = (Compile / sourceManaged).value
+      makeSources(dest, reloader.value)
     }.taskValue
   )
 
-  def makeSources(destBase: File, port: Int): Seq[File] = {
+  def makeSources(destBase: File, server: Reloadable): Seq[File] = {
     val packageName = "com.malliina.live"
-    val host = s"http://localhost:$port"
+    val host = s"http://localhost:${server.port}"
     val content =
       s"""
          |package $packageName
          |
          |object LiveReload {
          |  val host = "$host"
-         |  val script = "$host/script.js"
-         |  val socket = "$host/ws"
+         |  val script = "${server.scriptUrl}"
+         |  val socket = "${server.wsUrl}"
          |}
       """.stripMargin.trim + IO.Newline
     val destFile = destDir(destBase, packageName) / s"LiveReload.scala"

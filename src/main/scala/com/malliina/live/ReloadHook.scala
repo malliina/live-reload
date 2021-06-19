@@ -6,11 +6,11 @@ import play.sbt.PlayRunHook
 import sbt._
 
 object ReloadHook {
-  def apply(server: BrowserClient, openBrowserOnStart: Boolean, log: Logger): ReloadHook =
+  def apply(server: AkkaHttpReloadServer, openBrowserOnStart: Boolean, log: Logger): ReloadHook =
     new ReloadHook(server, openBrowserOnStart, log)
 }
 
-class ReloadHook(server: BrowserClient, openBrowserOnStart: Boolean, log: Logger)
+class ReloadHook(server: AkkaHttpReloadServer, openBrowserOnStart: Boolean, log: Logger)
     extends PlayRunHook {
   override def beforeStarted(): Unit = {
     server.start()

@@ -4,16 +4,29 @@ ThisBuild / pluginCrossBuild / sbtVersion := "1.2.8"
 
 val updateDocs = taskKey[Unit]("Updates README.md")
 
-val plugin = Project("play-live-reload", file("."))
+val http4sVersion = "0.21.24"
+
+val http4sModules = Seq(
+  "blaze-server",
+  "blaze-client",
+  "dsl",
+  "scalatags",
+  "circe",
+  "play-json"
+)
+
+val plugin = Project("live-reload", file("."))
   .enablePlugins(MavenCentralPlugin)
   .settings(
     sbtPlugin := true,
-    scalaVersion := "2.12.11",
+    scalaVersion := "2.12.14",
     organization := "com.malliina",
     gitUserName := "malliina",
     developerName := "Michael Skogberg",
     scalacOptions := Seq("-unchecked", "-deprecation"),
-    libraryDependencies ++= Seq(
+    libraryDependencies ++= http4sModules.map { m =>
+      "org.http4s" %% s"http4s-$m" % http4sVersion
+    } ++ Seq(
       "com.typesafe.akka" %% "akka-http" % "10.1.12",
       "com.typesafe.akka" %% "akka-stream" % "2.6.5",
       "com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-core" % "2.2.5" % Compile,
@@ -25,15 +38,15 @@ val plugin = Project("play-live-reload", file("."))
 val docs = project
   .in(file("mdoc"))
   .settings(
-    scalaVersion := "2.12.11",
-    crossScalaVersions -= "2.13.2",
-    skip.in(publish) := true,
+    scalaVersion := "2.12.14",
+    crossScalaVersions -= "2.13.6",
+    publish / skip := true,
     mdocVariables := Map("VERSION" -> version.value),
-    mdocOut := (baseDirectory in ThisBuild).value,
+    mdocOut := (ThisBuild / baseDirectory).value,
     updateDocs := {
       val log = streams.value.log
       val outFile = mdocOut.value
-      IO.relativize((baseDirectory in ThisBuild).value, outFile)
+      IO.relativize((ThisBuild / baseDirectory).value, outFile)
         .getOrElse(sys.error(s"Strange directory: $outFile"))
       val addStatus = Process(s"git add $outFile").run(log).exitValue()
       if (addStatus != 0) {
