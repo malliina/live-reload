@@ -8,7 +8,7 @@ Reloads the browser after a code change in your web app.
 
 1. Add to `project/plugins.sbt`:
 
-        addSbtPlugin("com.malliina" % "live-reload" % "0.1.0")
+        addSbtPlugin("com.malliina" % "live-reload" % "0.2.0")
 
 1. Enable `LiveReloadPlugin` instead in build.sbt:
 
