@@ -10,7 +10,7 @@ object AppHtml {
 class AppHtml(isHotReloaded: Boolean) {
   val empty: Modifier = ""
 
-  def index = page("Moi!! :)")
+  def index = page("Moi :)")
 
   def page(msg: String) = TagPage(
     html(

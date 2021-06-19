@@ -6,7 +6,7 @@ object BrowserLiveReloadPlugin extends AutoPlugin {
   override def requires = LiveReloadPlugin
 
   object autoImport {
-    val openBrowserOnStart = settingKey[Boolean]("Open browser on Play app start")
+    val openBrowserOnStart = settingKey[Boolean]("Open browser on app start")
   }
   import autoImport.openBrowserOnStart
 
