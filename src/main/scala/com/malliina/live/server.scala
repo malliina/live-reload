@@ -56,7 +56,7 @@ class Service(
   val eventsPath = "events"
   val wsUrl: String = s"ws://$host:$port/$eventsPath"
   val script = resourceToString("script.js").replaceFirst("@WS_URL@", wsUrl)
-
+  val cacheHeaders = NonEmptyList.of(`no-cache`())
   val routes = HttpRoutes.of[IO] {
     case GET -> Root / `scriptPath` =>
       Ok(script).map(_.withContentType(`Content-Type`(MediaType.text.javascript)))
@@ -72,22 +72,23 @@ class Service(
         ),
         fromClient
       )
-    case req @ GET -> rest => // if supportedStaticExtensions.exists(req.pathInfo.endsWith) =>
-      val file = rest.toList.mkString("/")
-      val cacheHeaders = NonEmptyList.of(`no-cache`())
-      StaticFile
-        .fromFile(root.resolve(file).toFile, blocker, Option(req))
+    case req @ GET -> rest =>
+      val file = if (rest.toList.isEmpty) "index.html" else rest.toList.mkString("/")
+      (findFile(file, req) orElse findFile(s"$file.html", req))
         .map(_.putHeaders(`Cache-Control`(cacheHeaders)))
         .fold(notFound(req))(_.pure[IO])
         .flatten
   }
+
+  def findFile(file: String, req: Request[IO]) =
+    StaticFile.fromFile(root.resolve(file).toFile, blocker, Option(req))
+
   val router = Router("/" -> routes).orNotFound
 
   def send(message: BrowserEvent) = events.publish1(message)
 
-  def notFound(req: Request[IO]) = {
-    NotFound("Not found.")
-  }
+  def notFound(req: Request[IO]) =
+    NotFound(s"Not found: ${req.uri}.")
 
   private def resourceToString(path: String) = {
     val src = scala.io.Source.fromResource(path, getClass.getClassLoader)

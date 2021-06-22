@@ -4,9 +4,12 @@ import java.nio.charset.StandardCharsets
 import sbt.Keys._
 import sbt._
 
+import java.nio.file.Path
+
 object LiveReloadPlugin extends AutoPlugin {
   object autoImport {
     val reloader = settingKey[Reloadable]("Interface to browsers")
+    val liveReloadRoot = settingKey[Path]("Path to live reload root for serving static files")
     val liveReloadHost = settingKey[String]("Host for live reload, defaults to localhost")
     val liveReloadPort = settingKey[Int]("HTTP port for live reload, defaults to 10101")
     val refreshBrowsers = taskKey[Unit]("Refreshes browsers")
@@ -14,10 +17,11 @@ object LiveReloadPlugin extends AutoPlugin {
   import autoImport._
 
   override def projectSettings: Seq[Setting[_]] = Seq(
+    liveReloadRoot := io.Path.userHome.toPath.resolve(".live-reload"),
     liveReloadHost := "localhost",
     liveReloadPort := 10101,
     reloader := StaticServer.start(
-      io.Path.userHome.toPath.resolve(".live-reload"),
+      liveReloadRoot.value,
       liveReloadHost.value,
       liveReloadPort.value,
       sLog.value

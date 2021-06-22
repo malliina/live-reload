@@ -4,6 +4,16 @@
 
 Reloads the browser after a code change in your web app.
 
+## Static websites
+
+When developing static websites, use this plugin as a dev server to serve files from a local directory. 
+Any recompile triggers a browser refresh.
+
+## Server-rendered HTML
+
+When developing backends that serve HTML, add a script to your dev HTML that watches for build events and
+refreshes the browser on recompilation.
+
 ## Usage
 
 1. Add to `project/plugins.sbt`:
