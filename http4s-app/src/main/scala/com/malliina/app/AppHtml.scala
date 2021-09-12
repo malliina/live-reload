@@ -1,21 +1,20 @@
 package com.malliina.app
 
 import com.malliina.live.LiveReload
-import scalatags.Text.all._
+import scalatags.Text.all.*
 
-object AppHtml {
+object AppHtml:
   def apply(isHotReloaded: Boolean): AppHtml = new AppHtml(isHotReloaded)
-}
 
-class AppHtml(isHotReloaded: Boolean) {
+class AppHtml(isHotReloaded: Boolean):
   val empty: Modifier = ""
 
-  def index = page("Moi :)")
+  def index = page("Hello!")
 
   def page(msg: String) = TagPage(
     html(
       head(
-        if (isHotReloaded) script(src := LiveReload.script, defer)
+        if isHotReloaded then script(src := LiveReload.script, defer)
         else empty
       ),
       body(
@@ -23,4 +22,3 @@ class AppHtml(isHotReloaded: Boolean) {
       )
     )
   )
-}

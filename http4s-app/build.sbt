@@ -1,12 +1,8 @@
-val http4sVersion = "0.21.24"
-
 val http4sModules = Seq(
   "blaze-server",
   "blaze-client",
   "dsl",
-  "scalatags",
-  "circe",
-  "play-json"
+  "circe"
 )
 
 val app = project
@@ -15,15 +11,13 @@ val app = project
   .settings(
     organization := "com.malliina",
     version := "0.0.1",
-    scalaVersion := "2.13.6",
+    scalaVersion := "3.0.2",
     scalacOptions := Seq("-unchecked", "-deprecation"),
     libraryDependencies ++= http4sModules.map { m =>
-      "org.http4s" %% s"http4s-$m" % http4sVersion
-    } ++ Seq(
-      "org.slf4j" % "slf4j-api" % "1.7.30",
-      "ch.qos.logback" % "logback-classic" % "1.2.3",
-      "ch.qos.logback" % "logback-core" % "1.2.3",
-      "com.lihaoyi" %% "scalatags" % "0.9.4",
-      "org.scalameta" %% "munit" % "0.7.26" % Test
+      "org.http4s" %% s"http4s-$m" % "0.23.3"
+    } ++ Seq("classic", "core").map { m => "ch.qos.logback" % s"logback-$m" % "1.2.5" } ++ Seq(
+      "org.slf4j" % "slf4j-api" % "1.7.32",
+      ("com.lihaoyi" %% "scalatags" % "0.9.4").cross(CrossVersion.for3Use2_13),
+      "org.scalameta" %% "munit" % "0.7.29" % Test
     )
   )

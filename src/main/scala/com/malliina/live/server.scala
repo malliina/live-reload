@@ -1,26 +1,29 @@
 package com.malliina.live
 
 import cats.data.NonEmptyList
-import cats.effect.{Blocker, ContextShift, ExitCode, IO, IOApp, Resource, Timer}
-import cats.implicits.{catsSyntaxApplicativeId, catsSyntaxFlatten}
+import cats.effect.kernel.Temporal
+import cats.effect.unsafe.implicits.global
+import cats.effect.{IO, Resource}
+import cats.implicits.catsSyntaxApplicativeId
 import fs2.Pipe
 import fs2.concurrent.Topic
+import fs2.concurrent.Topic.Closed
 import org.http4s.CacheDirective.`no-cache`
+import org.http4s._
+import org.http4s.blaze.server.BlazeServerBuilder
 import org.http4s.dsl.Http4sDsl
 import org.http4s.headers.{`Cache-Control`, `Content-Type`}
-import org.http4s.server.blaze.BlazeServerBuilder
 import org.http4s.server.websocket.WebSocketBuilder
 import org.http4s.server.{Router, Server}
 import org.http4s.websocket.WebSocketFrame
 import org.http4s.websocket.WebSocketFrame.Text
-import org.http4s.{HttpRoutes, Request, StaticFile, _}
 import sbt.util.Logger
 
 import java.io.Closeable
-import java.nio.file.{Path, Paths}
+import java.nio.file.Path
 import scala.concurrent.ExecutionContext
 
-trait Implicits extends syntax.AllSyntaxBinCompat with Http4sDsl[IO]
+trait Implicits extends syntax.AllSyntax with Http4sDsl[IO]
 
 object NoopReloadable extends Reloadable {
   override def host = "localhost"
@@ -30,6 +33,7 @@ object NoopReloadable extends Reloadable {
   override def emit(message: BrowserEvent): Unit = ()
   override def close(): Unit = ()
 }
+
 trait Reloadable extends Closeable {
   def host: String
   def port: Int
@@ -42,13 +46,10 @@ trait Reloadable extends Closeable {
 }
 
 class Service(
-    root: Path,
-    val host: String,
-    val port: Int,
-    events: Topic[IO, BrowserEvent],
-    blocker: Blocker
-)(
-    implicit cs: ContextShift[IO]
+  root: Path,
+  val host: String,
+  val port: Int,
+  events: Topic[IO, BrowserEvent]
 ) extends Implicits {
   val supportedStaticExtensions = List(".html", ".js", ".map", ".css", ".png", ".ico")
   val scriptPath = "script.js"
@@ -65,15 +66,15 @@ class Service(
         case Text(message, _) => IO(println(message))
         case _                => IO.unit
       }
-
       WebSocketBuilder[IO].build(
-        (fs2.Stream.emit(SimpleEvent.ping) ++ events.subscribe(100).drop(1)).map(message =>
+        (fs2.Stream.emit(SimpleEvent.ping) ++ events.subscribe(100)).map(message =>
           Text(message.asJson)
         ),
         fromClient
       )
     case req @ GET -> rest =>
-      val file = if (rest.toList.isEmpty) "index.html" else rest.toList.mkString("/")
+      val segments = rest.segments
+      val file = if (segments.isEmpty) "index.html" else segments.mkString("/")
       (findFile(file, req) orElse findFile(s"$file.html", req))
         .map(_.putHeaders(`Cache-Control`(cacheHeaders)))
         .fold(notFound(req))(_.pure[IO])
@@ -81,11 +82,11 @@ class Service(
   }
 
   def findFile(file: String, req: Request[IO]) =
-    StaticFile.fromFile(root.resolve(file).toFile, blocker, Option(req))
+    StaticFile.fromFile(root.resolve(file).toFile, Option(req))
 
   val router = Router("/" -> routes).orNotFound
 
-  def send(message: BrowserEvent) = events.publish1(message)
+  def send(message: BrowserEvent): IO[Either[Closed, Unit]] = events.publish1(message)
 
   def notFound(req: Request[IO]) =
     NotFound(s"Not found: ${req.uri}.")
@@ -99,19 +100,16 @@ class Service(
 
 object StaticServer {
   val ec = ExecutionContext.global
-  val cs = IO.contextShift(ec)
-  val timer = IO.timer(ec)
 
-  def apply(root: Path, log: Logger): StaticServer = new StaticServer(root, log)(cs, timer)
+  def apply(root: Path, log: Logger): StaticServer = new StaticServer(root, log)
   def start(root: Path, host: String, port: Int, log: Logger): Reloadable =
     apply(root, log).start(host, port)
 }
 
-class StaticServer(root: Path, log: Logger)(implicit cs: ContextShift[IO], t: Timer[IO]) {
-  def server(host: String, port: Int): Resource[IO, (Server[IO], Service)] = for {
-    blocker <- Blocker[IO]
-    topic <- Resource.eval(Topic[IO, BrowserEvent](SimpleEvent.ping))
-    service = new Service(root, host, port, topic, blocker)
+class StaticServer(root: Path, log: Logger)(implicit t: Temporal[IO]) {
+  def server(host: String, port: Int): Resource[IO, (Server, Service)] = for {
+    topic <- Resource.eval(Topic[IO, BrowserEvent])
+    service = new Service(root, host, port, topic)
     server <- BlazeServerBuilder[IO](ExecutionContext.global)
       .bindHttp(port, host)
       .withHttpApp(service.router)
@@ -138,12 +136,4 @@ class StaticServer(root: Path, log: Logger)(implicit cs: ContextShift[IO], t: Ti
       }
     }
   }
-}
-
-trait ServerApp extends IOApp {
-  val root = Paths.get(sys.props("user.home")).resolve("code/meny/target/site")
-  val server: Resource[IO, Server[IO]] = ??? // new StaticServer(root).server()
-
-  override def run(args: List[String]): IO[ExitCode] =
-    server.use(_ => IO.never).as(ExitCode.Success)
 }

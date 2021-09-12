@@ -4,7 +4,7 @@ ThisBuild / pluginCrossBuild / sbtVersion := "1.2.8"
 
 val updateDocs = taskKey[Unit]("Updates README.md")
 
-val http4sVersion = "0.21.24"
+val http4sVersion = "0.23.3"
 
 val http4sModules = Seq(
   "blaze-server",
@@ -27,12 +27,9 @@ val plugin = Project("live-reload", file("."))
     libraryDependencies ++= http4sModules.map { m =>
       "org.http4s" %% s"http4s-$m" % http4sVersion
     } ++ Seq(
-      "com.typesafe.akka" %% "akka-http" % "10.1.12",
-      "com.typesafe.akka" %% "akka-stream" % "2.6.5",
       "com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-core" % "2.2.5" % Compile,
       "com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-macros" % "2.2.5" % Provided
-    ),
-    addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.8.2")
+    )
   )
 
 val docs = project
