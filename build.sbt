@@ -10,9 +10,7 @@ val http4sModules = Seq(
   "blaze-server",
   "blaze-client",
   "dsl",
-  "scalatags",
-  "circe",
-  "play-json"
+  "circe"
 )
 
 val plugin = Project("live-reload", file("."))
@@ -29,7 +27,8 @@ val plugin = Project("live-reload", file("."))
     } ++ Seq(
       "com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-core" % "2.2.5" % Compile,
       "com.github.plokhotnyuk.jsoniter-scala" %% "jsoniter-scala-macros" % "2.2.5" % Provided
-    )
+    ),
+    addSbtPlugin("io.spray" % "sbt-revolver" % "0.9.1")
   )
 
 val docs = project

@@ -1,13 +1,18 @@
 package com.malliina.live
 
-import java.nio.charset.StandardCharsets
+import org.apache.logging.log4j.core.LogEvent
+import org.apache.logging.log4j.core.appender.AbstractAppender
+import org.apache.logging.log4j.message.{Message, ObjectMessage}
 import sbt.Keys._
 import sbt._
+import sbt.internal.util.StringEvent
 
+import java.nio.charset.StandardCharsets
 import java.nio.file.Path
 
 object LiveReloadPlugin extends AutoPlugin {
   object autoImport {
+    val startServer = taskKey[Unit]("Starts the server")
     val reloader = settingKey[Reloadable]("Interface to browsers")
     val liveReloadRoot = settingKey[Path]("Path to live reload root for serving static files")
     val liveReloadHost = settingKey[String]("Host for live reload, defaults to localhost")
@@ -20,11 +25,14 @@ object LiveReloadPlugin extends AutoPlugin {
     liveReloadRoot := io.Path.userHome.toPath.resolve(".live-reload"),
     liveReloadHost := "localhost",
     liveReloadPort := 10101,
-    reloader := StaticServer.start(
-      liveReloadRoot.value,
-      liveReloadHost.value,
-      liveReloadPort.value,
-      sLog.value
+    reloader := new OnOffReloadable(
+      StaticServer.start(
+        liveReloadRoot.value,
+        liveReloadHost.value,
+        liveReloadPort.value,
+        sLog.value
+      ),
+      NoopReloadable
     ),
     onUnload in Global := (onUnload in Global).value andThen { state: State =>
       sLog.value.info("onUnload")
@@ -36,18 +44,13 @@ object LiveReloadPlugin extends AutoPlugin {
     extraLoggers := {
       // Sends compilation log output to the browser
       // https://www.scala-sbt.org/1.x/docs/Howto-Logging.html#Add+a+custom+logger
-      import org.apache.logging.log4j.core.LogEvent
-      import org.apache.logging.log4j.core.appender.AbstractAppender
-      import org.apache.logging.log4j.message.{Message, ObjectMessage}
-      import sbt.internal.util.StringEvent
-
       class BrowserConsoleAppender(key: ScopedKey[_])
-          extends AbstractAppender(
-            "BrowserAppender", // name : String
-            null, // filter : org.apache.logging.log4j.core.Filter
-            null, // layout : org.apache.logging.log4j.core.Layout[ _ <: Serializable]
-            false // ignoreExceptions : Boolean
-          ) {
+        extends AbstractAppender(
+          "BrowserAppender", // name : String
+          null, // filter : org.apache.logging.log4j.core.Filter
+          null, // layout : org.apache.logging.log4j.core.Layout[ _ <: Serializable]
+          false // ignoreExceptions : Boolean
+        ) {
 
         this.start() // the log4j2 Appender must be started, or it will fail with an Exception
 
@@ -93,7 +96,7 @@ object LiveReloadPlugin extends AutoPlugin {
          |  val socket = "${server.wsUrl}"
          |}
       """.stripMargin.trim + IO.Newline
-    val destFile = destDir(destBase, packageName) / s"LiveReload.scala"
+    val destFile = destDir(destBase, packageName) / "LiveReload.scala"
     IO.write(destFile, content, StandardCharsets.UTF_8)
     Seq(destFile)
   }

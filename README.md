@@ -18,7 +18,7 @@ refreshes the browser on recompilation.
 
 1. Add to `project/plugins.sbt`:
 
-        addSbtPlugin("com.malliina" % "live-reload" % "0.2.3")
+        addSbtPlugin("com.malliina" % "live-reload" % "0.2.4")
 
 1. Enable `LiveReloadPlugin` instead in build.sbt:
 
@@ -28,7 +28,7 @@ refreshes the browser on recompilation.
 
 1. Inject the JavaScript URL found in value `com.malliina.live.LiveReload.script` to the HTML of your web page.
 
-1. When developing for example http4s apps with `sbt ~reStart`, changes to source code will reload the web page after recompilation.
+1. When developing for example http4s apps with `sbt ~reStart`, enable `LiveRevolverPlugin`. Changes to source code will reload the web page after recompilation.
 
 ## Example app
 

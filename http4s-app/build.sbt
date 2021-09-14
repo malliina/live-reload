@@ -7,12 +7,11 @@ val http4sModules = Seq(
 
 val app = project
   .in(file("."))
-  .enablePlugins(LiveReloadPlugin)
+  .enablePlugins(LiveRevolverPlugin)
   .settings(
     organization := "com.malliina",
     version := "0.0.1",
     scalaVersion := "3.0.2",
-    scalacOptions := Seq("-unchecked", "-deprecation"),
     libraryDependencies ++= http4sModules.map { m =>
       "org.http4s" %% s"http4s-$m" % "0.23.3"
     } ++ Seq("classic", "core").map { m => "ch.qos.logback" % s"logback-$m" % "1.2.5" } ++ Seq(

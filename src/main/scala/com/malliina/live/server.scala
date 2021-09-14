@@ -21,11 +21,34 @@ import sbt.util.Logger
 
 import java.io.Closeable
 import java.nio.file.Path
+import java.util.concurrent.atomic.AtomicReference
 import scala.concurrent.ExecutionContext
 
 trait Implicits extends syntax.AllSyntax with Http4sDsl[IO]
 
+class OnOffReloadable(on: => Reloadable, off: Reloadable = NoopReloadable) extends Reloadable {
+  private val server = new AtomicReference[Option[Reloadable]](None)
+  override def isEnabled: Boolean = active.isEnabled
+  override def start(): Unit = {
+    if (server.get().isEmpty) {
+      server.set(Option(on))
+    }
+  }
+  override def host = active.host
+  override def port = active.port
+  override def scriptUrl = active.scriptUrl
+  override def wsUrl = active.wsUrl
+  override def emit(message: BrowserEvent): Unit = active.emit(message)
+  override def close(): Unit = {
+    val old = server.getAndSet(None)
+    old.foreach(_.close())
+  }
+  private def active: Reloadable = server.get().getOrElse(off)
+}
+
 object NoopReloadable extends Reloadable {
+  override def isEnabled: Boolean = false
+  override def start(): Unit = ()
   override def host = "localhost"
   override def port = 12345
   override def scriptUrl: String = s"http://$host:$port/script.js"
@@ -35,6 +58,8 @@ object NoopReloadable extends Reloadable {
 }
 
 trait Reloadable extends Closeable {
+  def isEnabled: Boolean
+  def start(): Unit
   def host: String
   def port: Int
   def scriptUrl: String
@@ -122,6 +147,8 @@ class StaticServer(root: Path, log: Logger)(implicit t: Temporal[IO]) {
     val ((_, svc), stopper) = server(serverHost, serverPort).allocated.unsafeRunSync()
     log.info(s"Live reload server started at $describe.")
     new Reloadable {
+      override def isEnabled: Boolean = true
+      override def start(): Unit = ()
       override def host: String = svc.host
       override def port: Int = svc.port
       override def scriptUrl: String = svc.scriptUrl
