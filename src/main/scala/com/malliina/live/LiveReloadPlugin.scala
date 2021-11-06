@@ -35,7 +35,6 @@ object LiveReloadPlugin extends AutoPlugin {
       NoopReloadable
     ),
     onUnload in Global := (onUnload in Global).value andThen { state: State =>
-      sLog.value.info("onUnload")
       reloader.value.close()
       state
     },
@@ -94,6 +93,7 @@ object LiveReloadPlugin extends AutoPlugin {
          |  val host = "$host"
          |  val script = "${server.scriptUrl}"
          |  val socket = "${server.wsUrl}"
+         |  val isEnabled = ${server.isEnabled}
          |}
       """.stripMargin.trim + IO.Newline
     val destFile = destDir(destBase, packageName) / "LiveReload.scala"
