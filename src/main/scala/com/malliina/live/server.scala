@@ -10,11 +10,11 @@ import fs2.concurrent.Topic
 import fs2.concurrent.Topic.Closed
 import fs2.io.file.{Path => FS2Path}
 import org.http4s.CacheDirective.`no-cache`
-import org.http4s.*
+import org.http4s._
 import org.http4s.blaze.server.BlazeServerBuilder
 import org.http4s.dsl.Http4sDsl
 import org.http4s.headers.{`Cache-Control`, `Content-Type`}
-import org.http4s.server.websocket.{WebSocketBuilder, WebSocketBuilder2}
+import org.http4s.server.websocket.WebSocketBuilder2
 import org.http4s.server.{Router, Server}
 import org.http4s.websocket.WebSocketFrame
 import org.http4s.websocket.WebSocketFrame.Text
