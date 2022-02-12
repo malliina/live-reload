@@ -39,7 +39,7 @@ object LiveReloadPlugin extends AutoPlugin {
       state
     },
     refreshBrowsers := reloader.value.reload(),
-    refreshBrowsers := refreshBrowsers.triggeredBy(Compile / compile).value,
+//    refreshBrowsers := refreshBrowsers.triggeredBy(Compile / compile).value,
     extraLoggers := {
       // Sends compilation log output to the browser
       // https://www.scala-sbt.org/1.x/docs/Howto-Logging.html#Add+a+custom+logger

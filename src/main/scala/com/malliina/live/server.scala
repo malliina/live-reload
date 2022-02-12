@@ -8,19 +8,19 @@ import cats.implicits.catsSyntaxApplicativeId
 import fs2.Pipe
 import fs2.concurrent.Topic
 import fs2.concurrent.Topic.Closed
+import fs2.io.file.{Path => FS2Path}
 import org.http4s.CacheDirective.`no-cache`
-import org.http4s._
+import org.http4s.*
 import org.http4s.blaze.server.BlazeServerBuilder
 import org.http4s.dsl.Http4sDsl
 import org.http4s.headers.{`Cache-Control`, `Content-Type`}
-import org.http4s.server.websocket.WebSocketBuilder
+import org.http4s.server.websocket.{WebSocketBuilder, WebSocketBuilder2}
 import org.http4s.server.{Router, Server}
 import org.http4s.websocket.WebSocketFrame
 import org.http4s.websocket.WebSocketFrame.Text
 import sbt.util.Logger
-
-import java.io.Closeable
 import java.nio.file.Path
+import java.io.Closeable
 import java.util.concurrent.atomic.AtomicReference
 import scala.concurrent.ExecutionContext
 
@@ -71,7 +71,7 @@ trait Reloadable extends Closeable {
 }
 
 class Service(
-  root: Path,
+  root: FS2Path,
   val host: String,
   val port: Int,
   events: Topic[IO, BrowserEvent]
@@ -83,7 +83,8 @@ class Service(
   val wsUrl: String = s"ws://$host:$port/$eventsPath"
   val script = resourceToString("script.js").replaceFirst("@WS_URL@", wsUrl)
   val cacheHeaders = NonEmptyList.of(`no-cache`())
-  val routes = HttpRoutes.of[IO] {
+
+  def routes(builder: WebSocketBuilder2[IO]) = HttpRoutes.of[IO] {
     case GET -> Root / `scriptPath` =>
       Ok(script).map(_.withContentType(`Content-Type`(MediaType.text.javascript)))
     case GET -> Root / `eventsPath` =>
@@ -91,7 +92,7 @@ class Service(
         case Text(message, _) => IO(println(message))
         case _                => IO.unit
       }
-      WebSocketBuilder[IO].build(
+      builder.build(
         (fs2.Stream.emit(SimpleEvent.ping) ++ events.subscribe(100)).map(message =>
           Text(message.asJson)
         ),
@@ -107,9 +108,9 @@ class Service(
   }
 
   def findFile(file: String, req: Request[IO]) =
-    StaticFile.fromFile(root.resolve(file).toFile, Option(req))
+    StaticFile.fromPath(root.resolve(file), Option(req))
 
-  val router = Router("/" -> routes).orNotFound
+  def router(builder: WebSocketBuilder2[IO]) = Router("/" -> routes(builder)).orNotFound
 
   def send(message: BrowserEvent): IO[Either[Closed, Unit]] = events.publish1(message)
 
@@ -126,18 +127,20 @@ class Service(
 object StaticServer {
   val ec = ExecutionContext.global
 
-  def apply(root: Path, log: Logger): StaticServer = new StaticServer(root, log)
+  def apply(root: Path, log: Logger): StaticServer =
+    new StaticServer(FS2Path.fromNioPath(root), log)
   def start(root: Path, host: String, port: Int, log: Logger): Reloadable =
     apply(root, log).start(host, port)
 }
 
-class StaticServer(root: Path, log: Logger)(implicit t: Temporal[IO]) {
+class StaticServer(root: FS2Path, log: Logger)(implicit t: Temporal[IO]) {
   def server(host: String, port: Int): Resource[IO, (Server, Service)] = for {
     topic <- Resource.eval(Topic[IO, BrowserEvent])
     service = new Service(root, host, port, topic)
-    server <- BlazeServerBuilder[IO](ExecutionContext.global)
+    server <- BlazeServerBuilder[IO]
       .bindHttp(port, host)
-      .withHttpApp(service.router)
+      .withHttpWebSocketApp(builder => service.router(builder))
+      .withBanner(Nil)
       .resource
   } yield (server, service)
 
