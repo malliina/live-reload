@@ -1,10 +1,11 @@
 package com.malliina.live
 
+import com.comcast.ip4s.{Host, IpLiteralSyntax, Port}
 import org.apache.logging.log4j.core.LogEvent
 import org.apache.logging.log4j.core.appender.AbstractAppender
 import org.apache.logging.log4j.message.{Message, ObjectMessage}
-import sbt.Keys._
-import sbt._
+import sbt.Keys.*
+import sbt.*
 import sbt.internal.util.StringEvent
 
 import java.nio.charset.StandardCharsets
@@ -15,16 +16,16 @@ object LiveReloadPlugin extends AutoPlugin {
     val startServer = taskKey[Unit]("Starts the server")
     val reloader = settingKey[Reloadable]("Interface to browsers")
     val liveReloadRoot = settingKey[Path]("Path to live reload root for serving static files")
-    val liveReloadHost = settingKey[String]("Host for live reload, defaults to localhost")
-    val liveReloadPort = settingKey[Int]("HTTP port for live reload, defaults to 10101")
+    val liveReloadHost = settingKey[Host]("Host for live reload, defaults to localhost")
+    val liveReloadPort = settingKey[Port]("HTTP port for live reload, defaults to 10101")
     val refreshBrowsers = taskKey[Unit]("Refreshes browsers")
   }
   import autoImport._
 
   override def projectSettings: Seq[Setting[_]] = Seq(
     liveReloadRoot := io.Path.userHome.toPath.resolve(".live-reload"),
-    liveReloadHost := "localhost",
-    liveReloadPort := 10101,
+    liveReloadHost := host"localhost",
+    liveReloadPort := port"10101",
     reloader := new OnOffReloadable(
       StaticServer.start(
         liveReloadRoot.value,

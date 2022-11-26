@@ -1,21 +1,24 @@
 package com.malliina.live
 
-import com.github.plokhotnyuk.jsoniter_scala.macros._
-import com.github.plokhotnyuk.jsoniter_scala.core._
+import io.circe.{Codec, Encoder}
+import io.circe.generic.semiauto.deriveCodec
+import io.circe.syntax.EncoderOps
 
 trait BrowserEvent {
   def event: String
-  def asJson: String = this match {
-    case me @ MessageEvent(_, _, _) => writeToString(me)
-    case se @ SimpleEvent(_)        => writeToString(se)
+}
+
+object BrowserEvent {
+  implicit val encoder: Encoder[BrowserEvent] = {
+    case me @ MessageEvent(_, _, _) => me.asJson
+    case se @ SimpleEvent(_)        => se.asJson
   }
 }
 
 case class MessageEvent(event: String, level: String, message: String) extends BrowserEvent
 
 object MessageEvent {
-  implicit val codec: JsonValueCodec[MessageEvent] =
-    JsonCodecMaker.make[MessageEvent](CodecMakerConfig)
+  implicit val codec: Codec[MessageEvent] = deriveCodec[MessageEvent]
 
   def log(level: String, message: String) = apply("log", level, message)
 }
@@ -23,8 +26,7 @@ object MessageEvent {
 case class SimpleEvent(event: String) extends BrowserEvent
 
 object SimpleEvent {
-  implicit val codec: JsonValueCodec[SimpleEvent] =
-    JsonCodecMaker.make[SimpleEvent](CodecMakerConfig)
+  implicit val codec: Codec[SimpleEvent] = deriveCodec[SimpleEvent]
   val ping = SimpleEvent("ping")
   val reload = SimpleEvent("reload")
 }
