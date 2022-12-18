@@ -13,7 +13,6 @@ import java.nio.file.Path
 
 object LiveReloadPlugin extends AutoPlugin {
   object autoImport {
-    val startServer = taskKey[Unit]("Starts the server")
     val reloader = settingKey[Reloadable]("Interface to browsers")
     val liveReloadRoot = settingKey[Path]("Path to live reload root for serving static files")
     val liveReloadHost = settingKey[Host]("Host for live reload, defaults to localhost")
@@ -83,7 +82,7 @@ object LiveReloadPlugin extends AutoPlugin {
     }.taskValue
   )
 
-  def makeSources(destBase: File, server: Reloadable): Seq[File] = {
+  private def makeSources(destBase: File, server: Reloadable): Seq[File] = {
     val packageName = "com.malliina.live"
     val host = s"http://localhost:${server.port}"
     val content =
@@ -102,6 +101,6 @@ object LiveReloadPlugin extends AutoPlugin {
     Seq(destFile)
   }
 
-  def destDir(base: File, packageName: String): File =
+  private def destDir(base: File, packageName: String): File =
     packageName.split('.').foldLeft(base)((acc, part) => acc / part)
 }

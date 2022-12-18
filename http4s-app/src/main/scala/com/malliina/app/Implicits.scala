@@ -8,7 +8,7 @@ import scalatags.generic.Frag
 
 trait MyScalatagsInstances:
   implicit def scalatagsEncoder[F[_], C <: Frag[?, String]](implicit
-    charset: Charset = DefaultCharset
+    charset: Charset = Charset.`UTF-8`
   ): EntityEncoder[F, C] =
     contentEncoder(MediaType.text.html)
 

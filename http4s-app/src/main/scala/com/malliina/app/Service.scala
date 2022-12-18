@@ -2,30 +2,32 @@ package com.malliina.app
 
 import cats.data.Kleisli
 import cats.effect.{ExitCode, IO, IOApp}
+import com.comcast.ip4s.{host, port}
 import org.http4s.CacheDirective.{`must-revalidate`, `no-cache`, `no-store`}
 import org.http4s.{HttpRoutes, *}
 import org.http4s.headers.`Cache-Control`
 import org.http4s.server.Router
-import org.http4s.blaze.server.BlazeServerBuilder
+import org.http4s.ember.server.EmberServerBuilder
 
+import concurrent.duration.DurationInt
 import scala.concurrent.ExecutionContext
 
 object Service extends IOApp:
-  def apply(): Service = new Service()
-
   val app = Service().router
 
-  def server = for
-    s <- BlazeServerBuilder[IO](ExecutionContext.global)
-      .bindHttp(port = 9000, "0.0.0.0")
-      .withHttpApp(app)
-      .resource
-  yield s
+  def server = EmberServerBuilder
+    .default[IO]
+    .withIdleTimeout(30.days)
+    .withHost(host"0.0.0.0")
+    .withPort(port"9000")
+    .withHttpApp(app)
+    .withShutdownTimeout(1.millis)
+    .build
 
   override def run(args: List[String]): IO[ExitCode] =
     server.use(_ => IO.never).as(ExitCode.Success)
 
-class Service() extends Implicits:
+class Service extends Implicits:
   val noCache = `Cache-Control`(`no-cache`(), `no-store`, `must-revalidate`)
 
   val html = AppHtml(true)

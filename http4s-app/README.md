@@ -1,6 +1,6 @@
 # http4s-app
 
     sbt
-    ~reStart
+    ~startApp
 
 Navigate to http://localhost:9000.

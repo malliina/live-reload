@@ -3,9 +3,6 @@ package com.malliina.app
 import com.malliina.live.LiveReload
 import scalatags.Text.all.*
 
-object AppHtml:
-  def apply(isHotReloaded: Boolean): AppHtml = new AppHtml(isHotReloaded)
-
 class AppHtml(isHotReloaded: Boolean):
   val empty: Modifier = ""
 

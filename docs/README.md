@@ -18,7 +18,7 @@ refreshes the browser on recompilation.
 
 1. Add to `project/plugins.sbt`:
 
-        addSbtPlugin("com.malliina" % "live-reload" % "0.4.1-SNAPSHOT")
+        addSbtPlugin("com.malliina" % "live-reload" % "@VERSION@")
 
 1. Enable `LiveReloadPlugin` instead in build.sbt:
 
