@@ -27,6 +27,7 @@ val docs = project
     crossScalaVersions -= "2.13.10",
     publish / skip := true,
     mdocVariables := Map("VERSION" -> version.value),
+    mdocExtraArguments += "--no-link-hygiene",
     mdocOut := (ThisBuild / baseDirectory).value,
     updateDocs := {
       val log = streams.value.log
