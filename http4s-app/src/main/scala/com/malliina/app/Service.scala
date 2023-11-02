@@ -4,13 +4,12 @@ import cats.data.Kleisli
 import cats.effect.{ExitCode, IO, IOApp}
 import com.comcast.ip4s.{host, port}
 import org.http4s.CacheDirective.{`must-revalidate`, `no-cache`, `no-store`}
-import org.http4s.{HttpRoutes, *}
+import org.http4s.ember.server.EmberServerBuilder
 import org.http4s.headers.`Cache-Control`
 import org.http4s.server.Router
-import org.http4s.ember.server.EmberServerBuilder
+import org.http4s.{HttpRoutes, *}
 
-import concurrent.duration.DurationInt
-import scala.concurrent.ExecutionContext
+import scala.concurrent.duration.DurationInt
 
 object Service extends IOApp:
   val app = Service().router

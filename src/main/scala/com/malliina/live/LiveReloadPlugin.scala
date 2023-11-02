@@ -21,7 +21,7 @@ object LiveReloadPlugin extends AutoPlugin {
   }
   import autoImport._
 
-  override def projectSettings: Seq[Setting[_]] = Seq(
+  override def projectSettings: Seq[Setting[?]] = Seq(
     liveReloadRoot := io.Path.userHome.toPath.resolve(".live-reload"),
     liveReloadHost := host"localhost",
     liveReloadPort := port"10101",
@@ -43,7 +43,7 @@ object LiveReloadPlugin extends AutoPlugin {
     extraLoggers := {
       // Sends compilation log output to the browser
       // https://www.scala-sbt.org/1.x/docs/Howto-Logging.html#Add+a+custom+logger
-      class BrowserConsoleAppender(key: ScopedKey[_])
+      class BrowserConsoleAppender(key: ScopedKey[?])
         extends AbstractAppender(
           "BrowserAppender", // name : String
           null, // filter : org.apache.logging.log4j.core.Filter
@@ -72,7 +72,7 @@ object LiveReloadPlugin extends AutoPlugin {
       }
 
       val currentFunction = extraLoggers.value
-      (key: ScopedKey[_]) => {
+      (key: ScopedKey[?]) => {
         new BrowserConsoleAppender(key) +: currentFunction(key)
       }
     },

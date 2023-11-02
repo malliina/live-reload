@@ -5,7 +5,7 @@ liveReload.onopen = function (event) {
 liveReload.onclose = function (event) {
     console.log("Closed.")
 }
-liveReload.onmessage = function (event) {
+liveReload.onmessage = async function (event) {
     let data = JSON.parse(event.data)
     let eventKey = data.event
     if (eventKey === "ping") {
@@ -13,6 +13,8 @@ liveReload.onmessage = function (event) {
     }
     if (eventKey === "reload") {
         liveReload.close()
+        await reloadWhenServerReady()
+        console.log("Reloading...")
         location.reload()
     } else if (eventKey === "log") {
         let level = data.level
@@ -25,4 +27,17 @@ liveReload.onmessage = function (event) {
     } else {
         console.log("Unknown message: " + data)
     }
+}
+
+async function reloadWhenServerReady() {
+    return await fetch(location.href, { method: "HEAD"})
+        .catch(async (err) => {
+            console.log("HEAD didn't work, waiting 200 ms to try again...")
+            await delay(200)
+            return await reloadWhenServerReady()
+        })
+}
+
+function delay(ms){
+    return new Promise((res,rej) => setTimeout(res, ms));
 }
