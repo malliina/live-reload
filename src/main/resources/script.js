@@ -13,7 +13,7 @@ liveReload.onmessage = async function (event) {
     }
     if (eventKey === "reload") {
         liveReload.close()
-        await reloadWhenServerReady()
+        await reloadWhenServerReady(0)
         console.log("Reloading...")
         location.reload()
     } else if (eventKey === "log") {
@@ -28,13 +28,17 @@ liveReload.onmessage = async function (event) {
         console.log("Unknown message: " + data)
     }
 }
-
-async function reloadWhenServerReady() {
+let pollIntervalMs = 200
+async function reloadWhenServerReady(accMs) {
+    if (accMs > 60000) {
+        console.log("Server not ready in 60 seconds, stopping polling.")
+        return
+    }
     return await fetch(location.href, { method: "HEAD"})
         .catch(async (err) => {
             console.log("HEAD didn't work, waiting 200 ms to try again...")
-            await delay(200)
-            return await reloadWhenServerReady()
+            await delay(pollIntervalMs)
+            return await reloadWhenServerReady(accMs + pollIntervalMs)
         })
 }
 
